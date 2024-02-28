@@ -1,5 +1,5 @@
 Celery
-Django
+Django==4.0
 django-celery-beat 
 django-celery-results # currently requires Django 4.0 or older
 Faker

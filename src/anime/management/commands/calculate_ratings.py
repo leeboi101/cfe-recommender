@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandParser
 from django.contrib.auth import get_user_model
 
-from anime.tasks import task_calculate_movie_ratings
+from anime.tasks import task_calculate_anime_ratings
 
 User = get_user_model() #custom auth
 
@@ -13,4 +13,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         count = options.get('count')
         all = options.get('all')
-        task_calculate_movie_ratings(all=all, count=count)
+        task_calculate_anime_ratings(all=all, count=count)
