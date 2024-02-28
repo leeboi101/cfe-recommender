@@ -36,6 +36,8 @@ class Anime(models.Model):
     
     objects = AnimeManager()
 
+    def get_absolute_url(self):
+        return f"/anime/{self.id}/"
     def __str__(self):
         if not self.start_date:
             return f"{self.title}"
