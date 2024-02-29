@@ -5,20 +5,7 @@
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
     {% for object in object_list %}
     <div class="col">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h3>{{object.title}}</h3>
-            <p class="card-text">{{object.overview}}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="btn-group">
-                <a type="button" class="btn btn-sm btn-outline-secondary" href="{{ object.get_absolute_url }}">View</a>
-              </div>
-              {% if object.rating_avg is not None %}
-              <small class="text-body-secondary">{{ object.rating_avg }} ({{ object.rating_count }})</small>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+        {% include 'anime/snippet/card.html' with object=object %}
       </div><!-- end column-->
 
       {% endfor %}
