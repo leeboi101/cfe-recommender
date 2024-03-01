@@ -38,10 +38,14 @@ def generate_fake_reviews(count=100, users=10, null_avg=False):
         new_ratings.append(rating_obj.id)
     return new_ratings
 
-@shared_task
-def task_update_anime_ratings():
+@shared_task(name='task_update_anime_ratings')
+def task_update_anime_ratings(object_id=None):
     start_time = time.time()
     ctype = ContentType.objects.get_for_model(Anime)
+    rating_qs = Rating.objects.filter(content_type=ctype)
+    agg_ratings = Rating.objects.filter(content_type=ctype).values('object_id').annotate(average=Avg('value'), count=Count('object_id'))
+    if object_id is not None:
+        rating_qs = rating_qs.filter(object_id=object_id)
     agg_ratings = Rating.objects.filter(content_type=ctype).values('object_id').annotate(average=Avg('value'), count=Count('object_id'))
     for agg_rate in agg_ratings:
         object_id = agg_rate['object_id']

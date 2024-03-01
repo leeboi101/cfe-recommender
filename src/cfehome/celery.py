@@ -14,11 +14,9 @@ app.autodiscover_tasks()
 
 
 
-#app.conf.beat_schedule= {
- #  "run_anime_rating_avg_every_30": {
- #     'task': '',
-  #    'schedule': 60 * 30, #30 minutes
- #     'kwargs': {"all":True}
-#
-  #  }
-#}
+app.conf.beat_schedule= {
+   "run_anime_rating_avg_every_30": {
+      'task': 'task_update_anime_ratings',
+      'schedule': 60 * 30, #30 minutes
+    }
+}

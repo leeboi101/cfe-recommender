@@ -1,3 +1,4 @@
+from typing import Any
 from django.views import generic
 
 from .models import Anime
