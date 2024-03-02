@@ -20,5 +20,8 @@ def rate_movie_view(request):
         rating_obj = Rating.objects.create(content_type=ctype, object_id=object_id, value=rating_value, user=user)
         if rating_obj.content_object is not None:
            message = "<span class='bg-danger text-light py-1 px-3 rounded'>Rating Saved Successfully!</span>"
+           response = HttpResponse("skipping", status=200)
+           response['HX-Trigger-after-settle'] = 'did-rate-anime'
+           return response
 
     return HttpResponse(message, status=200)
