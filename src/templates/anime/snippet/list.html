@@ -1,0 +1,6 @@
+{% for object in object_list %}
+    <div class="col">
+        {% include 'anime/snippet/card.html' with object=object %}
+      </div><!-- end column-->
+
+      {% endfor %}
