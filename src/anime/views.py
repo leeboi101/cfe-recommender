@@ -16,8 +16,8 @@ class AnimeListView(generic.ListView):
         if user.is_authenticated:
             object_list = context['object_list']
             object_ids = [x.id for x in object_list]
-            qs = user.rating_set.filter(active=True, object_id__in=object_ids)
-            context['my_ratings'] = {"16206": 10}
+            my_ratings = user.rating_set.anime().as_object_dict(object_ids=object_ids)
+            context['my_ratings'] = my_ratings
         return context
 
 anime_list_view = AnimeListView.as_view()
@@ -27,4 +27,14 @@ class AnimeDetailView(generic.DetailView):
     # context -> object -> id
     queryset = Anime.objects.all()
 
+    def get_context_data(self,*args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        request = self.request
+        user = request.user
+        if user.is_authenticated:
+            object = context['object']
+            object_ids = [object.id]
+            my_ratings = user.rating_set.anime().as_object_dict(object_ids=object_ids)
+            context['my_ratings'] = my_ratings
+        return context
 anime_detail_view = AnimeDetailView.as_view()

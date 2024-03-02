@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db import models
 from django.conf import settings
 from django.db.models import Avg
@@ -30,10 +31,23 @@ class RatingChoice(models.IntegerChoices):
 class RatingQuerySet(models.QuerySet):
     def avg(self):
         return self.aggregate(average=Avg('value'))['average'] # - use of ['average'] is that it'll create a dictionary under the name {average: n} and give back the value (n) 
+    
+    def anime(self):
+        Anime = apps.get_model('anime', 'Anime')
+        ctype = ContentType.objects.get_for_model(Anime)
+        return self.filter(active=True, content_type=ctype)
+    
+    def as_object_dict(self, object_ids=[]):
+        qs = self.filter(object_id__in=object_ids)
+        return {f"{x.object_id}": x.value for x in qs}
+
 
 class RatingManager(models.Manager):
     def get_queryset(self):
         return RatingQuerySet(self.model, using=self._db)
+
+    def anime(self):
+        return self.get_queryset().anime()
 
     def avg(self):
         return self.get_queryset().avg()
