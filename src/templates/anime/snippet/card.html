@@ -15,6 +15,10 @@
           {% endif %}
         </div>
         <div>
+          {% if skip is True %}
+            <button hx-post ="/rate/anime/" class="btn btn-outline-secondary">Skip</button>
+          {% endif %}
+
             {% include 'ratings/snippet/rating-choices.html' with object_id=object.id current_rating=current_rating %}
             {% if object.rating_avg is not None %}
             <small class="text-body-secondary">{{ object.rating_avg }} ({{ object.rating_count }})</small>

@@ -9,6 +9,10 @@ def rate_movie_view(request):
         return HttpResponse("Not Allowed", status=404)
     object_id = request.POST.get('object_id')
     rating_value = request.POST.get('rating_value')
+    if object_id is None or rating_value is None:
+         response = HttpResponse("skipping", status=200)
+         response['HX-Trigger'] = 'did-skip-anime'
+         return response
     user = request.user
     message = "You must <a href='/accounts/login/'>login</a> to Rate this."
     if user.is_authenticated:

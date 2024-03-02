@@ -1,4 +1,5 @@
 from typing import Any
+from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.views import generic
 
@@ -64,3 +65,17 @@ class AnimeDetailView(generic.DetailView):
             context['my_ratings'] = my_ratings
         return context
 anime_detail_view = AnimeDetailView.as_view()
+
+
+class AnimeInfiniteRatingView(AnimeDetailView):
+    def get_object(self):
+        return Anime.objects.all().order_by("?").first()
+    
+    def get_template_names(self):
+        request = self.request
+        if request.htmx:
+            return ['anime/snippet/infinite.html']
+        return ['anime/infinite-view.html']
+
+
+anime_infinite_rating_view = AnimeInfiniteRatingView.as_view()
