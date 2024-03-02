@@ -1,5 +1,5 @@
-<form hx-post="/rate/anime/" hx-trigger="change" hx-target="find.success">
-    <div class="success"> </div>
+<form hx-post="/rate/anime/" hx-trigger="change" hx-target="find .success">
+    <div class="success mb-2"></div>
     {% if object_id %}
     <input type="hidden" value="{{ object_id }}" name="object_id" />
     {% endif %}
