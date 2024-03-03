@@ -20,3 +20,9 @@ app.conf.beat_schedule= {
       'schedule': 60 * 30, #30 minutes
     }
 }
+app.conf.beat_schedule= {
+   "run_rating_export_every_60": {
+      'task': 'export_rating_dataset',
+      'schedule': 60 * 60, #30 minutes
+    }
+}
