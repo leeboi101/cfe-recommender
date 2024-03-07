@@ -7,8 +7,10 @@ from .models import Anime
 
 
 SORTING_CHOICES = {
-    "popular": "-rating_avg",
-    "unpopular": "rating_avg",
+    "popular": "popular",
+    "unpopular": "unpopular",
+    "Top Rated": "-rating_avg",
+    "Low Rated": "rating_avg",
     "recent": "-start_date",
     "old": "start_date"
 }
@@ -20,12 +22,15 @@ class AnimeListView(generic.ListView):
 
     def get_queryset(self):
         request = self.request
-        default_sort = request.session.get('anime_sort_order') or 'rating_avg'
-        qs = Anime.objects.all().order_by(default_sort)
+        sort = request.GET.get('sort') or request.session.get('anime_sort_order') or 'popular'
+        qs = Anime.objects.all()
         request = self.request
-        sort = request.GET.get('sort')
         if sort is not None:
             request.session['anime_sort_order'] = sort
+            if sort == 'popular':
+                return qs.popular()
+            elif sort == 'unpopular':
+                return qs.popular(reverse=True)
             qs = qs.order_by(sort)
         return qs
 
@@ -79,3 +84,23 @@ class AnimeInfiniteRatingView(AnimeDetailView):
 
 
 anime_infinite_rating_view = AnimeInfiniteRatingView.as_view()
+
+
+
+class AnimePopularView(AnimeDetailView):
+    def get_object(self):
+        user = self.request.user
+        exclude_ids = []
+        if user.is_authenticated:
+            exclude_ids = [x.object_id for x in user.rating_set.filter(active=True)]
+        anime_id_options = Anime.objects.all().popular().exclude(id__in=exclude_ids).values_list('id', flat=True)[:250]
+        return Anime.objects.filter(id__in=anime_id_options).order_by("?").first()
+    
+    def get_template_names(self):
+        request = self.request
+        if request.htmx:
+            return ['anime/snippet/infinite.html']
+        return ['anime/infinite-view.html']
+
+
+anime_popular_view = AnimePopularView.as_view()

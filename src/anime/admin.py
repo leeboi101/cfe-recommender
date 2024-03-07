@@ -6,5 +6,5 @@ from .models import Anime
 class AnimeAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'rating_count', 'rating_avg', 'rating_last_updated']
     readonly_fields = ['rating_avg', 'rating_count', 'ratings_avg_display']
-
+    search_fields = ['id']
 admin.site.register(Anime, AnimeAdmin)

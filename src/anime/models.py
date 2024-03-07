@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F, Sum
 from ratings.models import Rating
 from django.utils import timezone
 
@@ -9,6 +9,22 @@ from django.utils import timezone
 RATING_CALCULATE_TIME_IN_DAYS = 3
 
 class AnimeQuerySet(models.QuerySet):
+    def popular(self, reverse=False):
+        ordering = '-score'
+        if reverse:
+            ordering = 'score'
+        return self.order_by(ordering)
+    
+    def popular_calc(self, reverse=False):
+        ordering = '-score'
+        if reverse:
+            ordering = 'score'
+        return self.annotate(score=Sum(
+                F('rating_avg')*F('rating_count'),
+                output_field=models.FloatField()
+            )
+        ).order_by(ordering)
+    
     def needs_updating(self):
         now = timezone.now()
         days_ago = now - datetime.timedelta(days=RATING_CALCULATE_TIME_IN_DAYS)
@@ -33,7 +49,7 @@ class Anime(models.Model):
     rating_last_updated = models.DateTimeField(auto_now=False, auto_now_add=False, blank=True, null=True)
     rating_count = models.IntegerField(blank=True, null=True)
     rating_avg = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True) #max it'll be is 10.00, minimum 0.00
-    
+    score = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     objects = AnimeManager()
 
     def get_absolute_url(self):
