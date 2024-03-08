@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'anime',
     'profiles',
     'ratings',
+    'suggestions',
 ]
 
 SITE_ID = 1

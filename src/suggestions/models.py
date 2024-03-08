@@ -1,11 +1,11 @@
-from django.apps import apps
+
 from django.db import models
 from django.conf import settings
-from django.db.models import Avg
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save
-from django.utils import timezone
+
+
 User = settings.AUTH_USER_MODEL #'auth.User'
 
 
