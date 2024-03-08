@@ -133,3 +133,7 @@ src/data/ratings.csv
 src/data/reviews.csv
 src/data/profiles.csv
 src/local-cdn/media/exports/24-03-04/export.csv
+src/nbs/model.pk1
+src/local-cdn/media/ml/models/surprise/model-32.pkl
+src/local-cdn/media/ml/models/surprise/model-32_xhCISqw.pkl
+src/local-cdn/media/ml/models/surprise/latest.pkl
