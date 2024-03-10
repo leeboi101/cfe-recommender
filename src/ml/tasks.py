@@ -52,32 +52,3 @@ def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pag
 
 def batch_single_user_prediction_task(user_id=1, start_page=0, offset=250, max_pages=1000):
     return batch_users_prediction_task(users_ids=[user_id], start_page=start_page, offset=offset, max_pages=max_pages)
-
-from django.db.models import Count, Min
-from django.db.models import F
-
-@shared_task(name="delete_duplicate_suggestions")
-def delete_duplicate_suggestions():
-    Suggestion = apps.get_model('suggestions', 'Suggestion')
-
-    # Step 1: Identify duplicates by `user_id` and `object_id`, excluding the first occurrence.
-    # This approach assumes `id` is an auto-increment primary key.
-    duplicates = Suggestion.objects.values('user_id', 'object_id') \
-        .annotate(min_id=Min('id'), count_id=Count('id')) \
-        .filter(count_id__gt=1)
-
-    # Collect all IDs except the one with the min_id in each duplicate group for deletion.
-    ids_to_delete = []
-    for duplicate in duplicates:
-        ids = list(Suggestion.objects
-                   .filter(user_id=duplicate['user_id'], object_id=duplicate['object_id'])
-                   .exclude(id=duplicate['min_id'])
-                   .values_list('id', flat=True))
-        ids_to_delete.extend(ids)
-
-    # Step 2: Perform bulk delete
-    if ids_to_delete:
-        num_deleted, _ = Suggestion.objects.filter(id__in=ids_to_delete).delete()
-        return f"Deleted {num_deleted} duplicate suggestion(s)."
-    else:
-        return "No duplicates found to delete."
