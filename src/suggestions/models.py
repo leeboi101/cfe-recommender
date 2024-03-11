@@ -1,10 +1,10 @@
-
+import datetime
 from django.db import models
 from django.conf import settings
 from django.db.models import F
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-
+from django.utils import timezone
 
 User = settings.AUTH_USER_MODEL #'auth.User'
 
@@ -12,8 +12,18 @@ User = settings.AUTH_USER_MODEL #'auth.User'
 class SuggestionManager(models.Manager):
     def get_recently_suggested(self, anime_ids=[], users_ids=[], days_ago=7):
         data = {}
+        delta = datetime.timedelta(days=days_ago)
+        time_delta = timezone.now() - delta
         ctype = ContentType.objects.get(app_label='anime', model='anime')
-        dataset = self.get_queryset().filter(content_type=ctype, object_id__in=anime_ids,user_id__in=users_ids).annotate(anime_uid=F('object_id'),uid=F('user_id')).values('anime_uid','uid')
+        filter_args = {
+            "content_type": ctype,
+            "object_id__in": anime_ids,
+            "user_id__in": users_ids,
+            "active": True, 
+            "timestamps__gte": time_delta
+        }
+        dataset = self.get_queryset().filter(**filter_args)
+        dataset = dataset.annotate(anime_uid=F('object_id'),uid=F('user_id')).values('anime_uid','uid')
         for d in dataset:
             print(d)
             anime_id = str(d.get('anime_uid'))
@@ -34,6 +44,7 @@ class Suggestion(models.Model):
     timestamps = models.DateTimeField(auto_now_add=True)
 
 # when ratings occur after a suggestion
+    active = models.BooleanField(default=True)
     ratin_value = models.FloatField(null=True, blank=True)
     did_rate = models.BooleanField(default=False)
     did_rate_timestamp = models.DateTimeField(auto_now_add=False, auto_now=False,null=True, blank=True )

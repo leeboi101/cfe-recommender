@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row my-2">
+  <div class="col-md-2 me-auto">
+    <hi> Welcome Back</hi>
+  </div>
+</div>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="target-list-change">
+    {% include 'anime/snippet/list.html' with object_list=object_list %}
+  </div> <!-- end row-->
+
+
+{% endblock %}

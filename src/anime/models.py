@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q, F, Sum
+from django.db.models import Q, F, Sum, Case, When
 from ratings.models import Rating
 from django.utils import timezone
 
@@ -35,6 +35,11 @@ class AnimeManager(models.Manager):
     def get_queryset(self, *args, **kwargs):
         return AnimeQuerySet(self.model, using=self._db)
     
+    def by_id_order(self, anime_ids=[]):
+        qs = self.get_queryset().filter(id__in=anime_ids)
+        maintain_order = Case(*[When(pk=pki, then=idx) for idx, pki in enumerate(anime_ids)])
+        return qs.order_by(maintain_order)
+
     def needs_updating(self):
         return self.get_queryset().needs_updating()
 

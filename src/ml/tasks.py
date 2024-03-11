@@ -14,7 +14,7 @@ def train_surprise_model_task():
     ml_utils.train_surprise_model()
 
 @shared_task
-def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pages=1000):
+def batch_users_prediction_task(users_ids=None, start_page=0, offset=253, max_pages=1000):
     model = ml_utils.load_model()
     Suggestion = apps.get_model('suggestions', 'Suggestion')
     ctype = ContentType.objects.get(app_label='anime', model='anime')
@@ -50,5 +50,24 @@ def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pag
         return batch_users_prediction_task(start_page=end_page-1)
 
 
-def batch_single_user_prediction_task(user_id=1, start_page=0, offset=250, max_pages=1000):
+def batch_single_user_prediction_task(user_id=1, start_page=0, offset=253, max_pages=1000):
     return batch_users_prediction_task(users_ids=[user_id], start_page=start_page, offset=offset, max_pages=max_pages)
+User = get_user_model()
+
+@shared_task
+def check_suggestions_per_user(target_suggestions=253):
+    Suggestion = apps.get_model('suggestions', 'Suggestion')
+
+    # Annotate each user with the count of their suggestions
+    users_annotation = User.objects.annotate(suggestions_count=Count('suggestion'))
+
+    # Count users with exactly target_suggestions suggestions
+    exact_match_count = users_annotation.filter(suggestions_count=target_suggestions).count()
+
+    # Count users with less or more than target_suggestions suggestions
+    not_match_count = users_annotation.exclude(suggestions_count=target_suggestions).count()
+
+    print(f"Users with exactly {target_suggestions} suggestions: {exact_match_count}")
+    print(f"Users without exactly {target_suggestions} suggestions: {not_match_count}")
+
+    return exact_match_count, not_match_count

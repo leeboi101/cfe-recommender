@@ -1,6 +1,6 @@
 
     
-<div hx-get="/anime/infinite/" hx-trigger="did-skip-anime from:body, did-rate-anime from:body" hx-swap="outerHTML">
+<div hx-get="{% if endless_path %} {{ endless_path }} {% else %}/anime/infinite/{% endif %}" hx-trigger="did-skip-anime from:body, did-rate-anime from:body" hx-swap="outerHTML">
   {% include 'anime/snippet/card.html' with object=object skip=True %}
 </div><!-- end column-->
 
