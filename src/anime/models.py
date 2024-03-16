@@ -44,6 +44,13 @@ class AnimeManager(models.Manager):
         return self.get_queryset().needs_updating()
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True, blank=True)
+
+    def __str__(self):
+        return self.name
+    
+
 class Anime(models.Model):
     title = models.CharField(max_length=120, unique=True)
     synopsis = models.TextField()
@@ -56,7 +63,7 @@ class Anime(models.Model):
     rating_avg = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True) #max it'll be is 10.00, minimum 0.00
     score = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     objects = AnimeManager()
-
+    genre = models.ManyToManyField(Genre, related_name='genre')
     def get_absolute_url(self):
         return f"/anime/{self.id}/"
     def __str__(self):
