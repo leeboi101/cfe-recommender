@@ -52,7 +52,7 @@ class Genre(models.Model):
     
 
 class Anime(models.Model):
-    title = models.CharField(max_length=120, unique=True)
+    title = models.CharField(max_length=120, unique=True,blank=True)
     synopsis = models.TextField()
     start_date = models.DateField(blank=True, null=True, auto_now=False, auto_now_add=False)
     end_date = models.DateField(blank=True, null=True, auto_now=False, auto_now_add=False)
