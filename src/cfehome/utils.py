@@ -67,15 +67,13 @@ def get_fake_profiles(count=10):
         user_data.append(data)
     return(user_data)
 
-def validate_genre_str(genres):
-    pprint(genres)
-    pprint('-'*100)
-    if genres != '[]':
+def validate_genre_str(genre):
+
+    if genre != '[]':
 #Strip unwanted characters and convert to list of dictionaries
-        genres_list = ast.literal_eval(genres)
+        genres_list = list(genre.strip("[]"))
         # Extract names of genres
-        pprint(genres_list)
-        pprint('-'*100)
+
         # Check if all genre names were found
         all_exist = ''
         for name in genres_list:
@@ -89,13 +87,20 @@ def validate_genre_str(genres):
     return None
 
 def validate_genre(genre):
-    if genre and genre != '[]':
-        # Strip unwanted characters and convert to list of dictionaries
-        genres_list = ast.literal_eval(genre)
+   # pprint(genre)
+    #pprint('-'100)
+    if genre != '[]':
+#Strip unwanted characters and convert to list of dictionaries
+        genres_list = list(genre.strip("[]"))
+        #pprint("genre_list:" + str(genres_list))
+        #pprint('-'100)
+        # Extract names of genres
         genre_objects = []
         for genre_name in genres_list:
             genre_obj = Genre.objects.filter(name=genre_name).first()
             genre_objects.append(genre_obj)
+       # pprint("genre_objects:" + str(genre_objects))
+       # pprint('-'*100)
         return genre_objects
     return None
 
@@ -116,36 +121,38 @@ def load_genre_data(limit=1):
                 break
         return dataset
     
-def create_or_update_anime_with_genres(limit=1):
+def create_or_update_anime_with_genres(anime_data):
     with open(ANIME_CSV, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         dataset = []
         for i, row in enumerate(reader):
-            if i + 1 > limit:
-                break
             _id = row.get("uid")
             try:
                 _id = int(_id)
             except:
                 _id = None
+            start_date,end_date = validate_date_str(row.get('aired'))
 
-            # Fetch existing anime object or create a new one if it doesn't exist
-            anime,create = Anime.objects.get_or_create(
+            anime, created = Anime.objects.get_or_create(
+                
                 id=_id,
                 defaults={
-                    
+                    "title": row.get('title'),
+                    "synopsis": row.get('synopsis'),
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "genre": row.get('genre'),
+                    # Exclude 'genre' from defaults since it's a ManyToMany field
                 }
             )
-
-            # Validate and fetch genre objects
-            genre_objs = validate_genre(row.get('genre'))
-
-            # If genre objects exist, update the many-to-many field
+            genre_objs = validate_genre(row.get('genres'))
+            #genre, _ = Genre.objects.get_or_create(name=row.get('genre'))
+            #genre_objs.append(genre)
+        
+            # Associate genres with the anime
             if genre_objs:
                 
                 anime.genre.set(genre_objs)
-                anime.save()
+            
 
-            if i + 1 > limit:
-                break
-    return limit
+            print(f"Processed {'created' if created else 'updated'} Anime: {anime.title} with Genre: {[g.name for g in genre_objs]}")
