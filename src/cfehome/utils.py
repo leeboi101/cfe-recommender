@@ -130,13 +130,19 @@ def create_or_update_anime_with_genres(limit=1):
                 _id = None
 
             # Fetch existing anime object or create a new one if it doesn't exist
-            anime = Anime.objects.get_or_create(id=_id)
+            anime,create = Anime.objects.get_or_create(
+                id=_id,
+                defaults={
+                    
+                }
+            )
 
             # Validate and fetch genre objects
-            genre_objs = validate_genre(row.get('genres'))
+            genre_objs = validate_genre(row.get('genre'))
 
             # If genre objects exist, update the many-to-many field
             if genre_objs:
+                
                 anime.genre.set(genre_objs)
                 anime.save()
 
