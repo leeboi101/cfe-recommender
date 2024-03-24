@@ -63,7 +63,7 @@ class Anime(models.Model):
     rating_avg = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True) #max it'll be is 10.00, minimum 0.00
     score = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
     objects = AnimeManager()
-    genre = models.ManyToManyField(Genre, related_name='genre')
+    #genre = models.ManyToManyField(Genre, related_name='genre')
     def get_absolute_url(self):
         return f"/anime/{self.id}/"
     def __str__(self):
@@ -95,3 +95,6 @@ class Anime(models.Model):
         if save:
             self.save()
         return rating_avg
+    
+
+ 

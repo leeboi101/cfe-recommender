@@ -53,43 +53,40 @@ def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pag
 def batch_single_user_prediction_task(user_id=1, start_page=0, offset=10, max_pages=1000):
     return batch_users_prediction_task(users_ids=[user_id], start_page=start_page, offset=offset, max_pages=max_pages)
 
-# User = get_user_model()
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Exists, OuterRef
+from django.apps import apps
 
+User = get_user_model()
+Rating = apps.get_model('ratings', 'Rating')  # Make sure this is correctly referenced
 
-# from django.contrib.auth import get_user_model
-# from django.db.models import Count, Exists, OuterRef
-# from django.apps import apps
+@shared_task
+def check_users_with_ratings_and_suggestions(target_suggestions=10):
+    # Check for users who have rated at least one anime
+    users_with_at_least_one_rating = User.objects.annotate(
+        has_rated=Exists(
+            Rating.objects.filter(user_id=OuterRef('id'))
+        )
+    ).filter(has_rated=True)
 
+    # Within those users, annotate and count suggestions as before
+    users_annotation = users_with_at_least_one_rating.annotate(
+        suggestions_count=Count('suggestion')  # Ensure 'suggestion' matches your actual relation or related_name
+    )
 
-# Rating = apps.get_model('ratings', 'Rating')  # Make sure this is correctly referenced
+    # Collect user IDs not matching the exact target_suggestions, but have rated
+    users_not_matching_ids = users_annotation.exclude(
+        suggestions_count=target_suggestions
+    ).values_list('id', flat=True)
 
-# @shared_task
-# def check_users_with_ratings_and_suggestions(target_suggestions=10):
-#     # Check for users who have rated at least one anime
-#     users_with_at_least_one_rating = User.objects.annotate(
-#         has_rated=Exists(
-#             Rating.objects.filter(user_id=OuterRef('id'))
-#         )
-#     ).filter(has_rated=True)
+    # For logging or debugging
+    exact_match_count = users_annotation.filter(suggestions_count=target_suggestions).count()
+    not_match_count = len(users_not_matching_ids)
+    print(f"Users who have rated and have exactly {target_suggestions} suggestions: {exact_match_count}")
+    print(f"Users who have rated and don't have exactly {target_suggestions} suggestions: {not_match_count}")
 
-#     # Within those users, annotate and count suggestions as before
-#     users_annotation = users_with_at_least_one_rating.annotate(
-#         suggestions_count=Count('suggestion')  # Ensure 'suggestion' matches your actual relation or related_name
-#     )
-
-#     # Collect user IDs not matching the exact target_suggestions, but have rated
-#     users_not_matching_ids = users_annotation.exclude(
-#         suggestions_count=target_suggestions
-#     ).values_list('id', flat=True)
-
-#     # For logging or debugging
-#     exact_match_count = users_annotation.filter(suggestions_count=target_suggestions).count()
-#     not_match_count = len(users_not_matching_ids)
-#     print(f"Users who have rated and have exactly {target_suggestions} suggestions: {exact_match_count}")
-#     print(f"Users who have rated and don't have exactly {target_suggestions} suggestions: {not_match_count}")
-
-#     # Return IDs of users who have rated but do not match the suggestions criteria
-#     return list(users_not_matching_ids)
+    # Return IDs of users who have rated but do not match the suggestions criteria
+    return list(users_not_matching_ids)
 
 
 # def get_users_with_fewer_than_target_suggestions(target=10):
@@ -109,14 +106,14 @@ def batch_single_user_prediction_task(user_id=1, start_page=0, offset=10, max_pa
 #     ).filter(suggestions_count__lt=target)
 
 
-# def get_users_with_fewer_than_target_suggestions(target=253):
+# def get_users_with_fewer_than_target_suggestions(target=10):
 #     User = get_user_model()
 #     return User.objects.annotate(
 #         suggestions_count=Count('suggestion')  # Make sure 'suggestions' is the correct relation name or related_name from User to Suggestion
 #     ).filter(suggestions_count__lt=target)
 
 # @shared_task
-# def batch_users_prediction_task_modified(target_suggestions=253, start_page=0, offset=253, max_pages=1000):
+# def batch_users_prediction_task_modified(target_suggestions=10, start_page=0, offset=10, max_pages=1000):
 #     model = ml_utils.load_model()
 #     Suggestion = apps.get_model('suggestions', 'Suggestion')
 #     ctype = ContentType.objects.get(app_label='anime', model='anime')
