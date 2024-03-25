@@ -44,11 +44,11 @@ class AnimeManager(models.Manager):
         return self.get_queryset().needs_updating()
 
 
-class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True, blank=True)
+# class Genre(models.Model):
+#     name = models.CharField(max_length=100, unique=True, blank=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
     
 
 class Anime(models.Model):

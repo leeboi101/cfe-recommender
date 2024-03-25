@@ -6,7 +6,7 @@ from django.utils import timezone
 
 User = get_user_model()
 
-def get_recent_users(days_ago=7, ids_only=True):
+def get_recent_users(days_ago=50, ids_only=True):
     delta = datetime.timedelta(days=days_ago)
     time_delta = timezone.now() - delta
     qs = User.objects.filter(Q(date_joined__gte=time_delta) | Q(last_login__gte=time_delta))

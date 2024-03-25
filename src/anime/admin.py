@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Anime,Genre
+from .models import Anime #,Genre
 
 class AnimeAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'rating_count', 'rating_avg', 'rating_last_updated']
@@ -10,4 +10,4 @@ class AnimeAdmin(admin.ModelAdmin):
 
 admin.site.register(Anime, AnimeAdmin)
 
-admin.site.register(Genre, )
+#admin.site.register(Genre, ) 
