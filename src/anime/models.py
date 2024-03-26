@@ -3,8 +3,10 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q, F, Sum, Case, When
 from ratings.models import Rating
+from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
+from . import tasks as anime_tasks
 
 RATING_CALCULATE_TIME_IN_DAYS = 3
 
@@ -62,6 +64,8 @@ class Anime(models.Model):
     rating_count = models.IntegerField(blank=True, null=True)
     rating_avg = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True) #max it'll be is 10.00, minimum 0.00
     score = models.DecimalField(decimal_places=2, max_digits=10, blank=True, null=True)
+    idx = models.IntegerField(help_text='positional Ids for ML', blank=True, null=True)
+    
     objects = AnimeManager()
     #genre = models.ManyToManyField(Genre, related_name='genre')
     def get_absolute_url(self):
@@ -71,30 +75,41 @@ class Anime(models.Model):
             return f"{self.title}"
         return f"{self.title} ({self.start_date.year})"
 
-    def ratings_avg_display(self):
-        now = timezone.now()
-        if not self.rating_last_updated:
-            return self.calculate_rating()
-        if self.rating_last_updated > now - datetime.timedelta(days=RATING_CALCULATE_TIME_IN_DAYS):
-            return self.rating_avg
-        return self.calculate_rating()
+    # def ratings_avg_display(self):
+    #     now = timezone.now()
+    #     if not self.rating_last_updated:
+    #         return self.calculate_rating()
+    #     if self.rating_last_updated > now - datetime.timedelta(days=RATING_CALCULATE_TIME_IN_DAYS):
+    #         return self.rating_avg
+    #     return self.calculate_rating()
 
 
-    def calculate_ratings_count(self):
-        return self.ratings.all().count()
+    # def calculate_ratings_count(self):
+    #     return self.ratings.all().count()
 
-    def calculate_ratings_avg(self):
-        return self.ratings.all().avg()
+    # def calculate_ratings_avg(self):
+    #     return self.ratings.all().avg()
     
-    def calculate_rating(self, save=True):
-        rating_avg = self.calculate_ratings_avg()
-        rating_count = self.calculate_ratings_count()
-        self.rating_count = rating_count
-        self.rating_avg = rating_avg
-        self.rating_last_updated = timezone.now()
-        if save:
-            self.save()
-        return rating_avg
+    # def calculate_rating(self, save=True):
+    #     rating_avg = self.calculate_ratings_avg()
+    #     rating_count = self.calculate_ratings_count()
+    #     self.rating_count = rating_count
+    #     self.rating_avg = rating_avg
+    #     self.rating_last_updated = timezone.now()
+    #     if save:
+    #         self.save()
+    #     return rating_avg
     
 
- 
+
+
+def anime_post_save(sender, instance, created, *args, **kwargs):
+        if created and instance.id:
+            anime_tasks.update_anime_position_embedding_idx()
+
+post_save.connect(anime_post_save, sender=Anime)
+
+def anime_post_delete(*args, **kwargs):
+            anime_tasks.update_anime_position_embedding_idx()
+
+post_delete.connect(anime_post_delete, sender=Anime)

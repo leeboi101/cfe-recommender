@@ -25,5 +25,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('anime/', include('anime.urls')),
-    path('rate/anime/', ratings_views.rate_movie_view)
+    path('rate/anime/', ratings_views.rate_anime_view)
 ]

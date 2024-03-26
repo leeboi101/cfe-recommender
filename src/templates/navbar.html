@@ -20,7 +20,12 @@
             <a class="nav-link active" href="/anime/popular">Popular Review</a>
           </li>
         </ul>
+      {% if user.is_authenticated %}
         <a class="btn btn-outline-primary" href="/accounts/logout">{% user_display user %}</a>
+      {% else %}
+        <a class="btn btn-outline-primary" href="/accounts/login">LogIn</a>
+        <a class="btn btn-outline-primary" href="/accounts/signup">SignUp</a>
+      {% endif %}
       </div>
     </div>
   </nav>

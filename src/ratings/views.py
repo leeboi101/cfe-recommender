@@ -2,9 +2,11 @@ from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
 from django.views.decorators.http import require_http_methods
 from .models import Rating
+from ml import tasks as ml_tasks
+
 
 require_http_methods('POST')
-def rate_movie_view(request):
+def rate_anime_view(request):
     if not request.htmx:
         return HttpResponse("Not Allowed", status=404)
     object_id = request.POST.get('object_id')
@@ -19,8 +21,22 @@ def rate_movie_view(request):
         ctype = ContentType.objects.get(app_label='anime', model='anime')
         rating_obj = Rating.objects.create(content_type=ctype, object_id=object_id, value=rating_value, user=user)
         if rating_obj.content_object is not None:
+           total_new_suggestions = request.session.get("total-new-suggestions") or 0
+           items_rated = request.session.get('items-rated') or 0
+           items_rated += 1
+           request.session['items-rated'] = items_rated
+           print('items_rated', items_rated)
+           if items_rated % 5 == 0:
+               print("Trigger New Suggestions")
+               users_ids = [user.id]
+               ml_tasks.batch_users_prediction_task.apply_async(kwargs ={
+                "users_ids": users_ids,
+                "start_page": total_new_suggestions,
+                "max_pages": 10
+                })
+
            message = "<span class='bg-danger text-light py-1 px-3 rounded'>Rating Saved Successfully!</span>"
-           response = HttpResponse("skipping", status=200)
+           response = HttpResponse(message, status=200)
            response['HX-Trigger-after-settle'] = 'did-rate-anime'
            return response
 

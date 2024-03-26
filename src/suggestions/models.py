@@ -45,7 +45,7 @@ class Suggestion(models.Model):
 
 # when ratings occur after a suggestion
     active = models.BooleanField(default=True)
-    ratin_value = models.FloatField(null=True, blank=True)
+    rating_value = models.FloatField(null=True, blank=True)
     did_rate = models.BooleanField(default=False)
     did_rate_timestamp = models.DateTimeField(auto_now_add=False, auto_now=False,null=True, blank=True )
     objects = SuggestionManager()
@@ -54,3 +54,4 @@ class Suggestion(models.Model):
     class Meta:
         ordering = ['-timestamps']
 
+ 
