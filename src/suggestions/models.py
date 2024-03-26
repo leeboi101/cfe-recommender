@@ -25,7 +25,6 @@ class SuggestionManager(models.Manager):
         dataset = self.get_queryset().filter(**filter_args)
         dataset = dataset.annotate(anime_uid=F('object_id'),uid=F('user_id')).values('anime_uid','uid')
         for d in dataset:
-            print(d)
             anime_id = str(d.get('anime_uid'))
             user_id = d.get('uid')
             if anime_id in data:

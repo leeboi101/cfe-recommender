@@ -11,7 +11,7 @@ def train_surprise_model_task():
     ml_utils.train_surprise_model()
 
 @shared_task
-def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pages=1000):
+def batch_users_prediction_task(users_ids=None, start_page=0, offset=200, max_pages=1000):
     model = ml_utils.load_model()
     Suggestion = apps.get_model('suggestions', 'Suggestion')
     ctype = ContentType.objects.get(app_label='anime', model='anime')
@@ -23,7 +23,8 @@ def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pag
     recently_suggested = Suggestion.objects.get_recently_suggested(anime_ids,users_ids)
     #print(recently_suggested)
     new_suggestion = []
-
+    if not anime_ids.exists():
+        return
     for anime_id in anime_ids:
         users_done = recently_suggested.get(f"{anime_id}") or []
 
@@ -45,7 +46,8 @@ def batch_users_prediction_task(users_ids=None, start_page=0, offset=10, max_pag
             )
     Suggestion.objects.bulk_create(new_suggestion, ignore_conflicts=True)
     if end_page < max_pages:
-        return batch_users_prediction_task(start_page=end_page-1)
+        return batch_users_prediction_task(users_ids=users_ids, start_page=end_page, offset=offset, max_pages=max_pages)
+
 
 
 def batch_single_user_prediction_task(user_id=1, start_page=0, offset=10, max_pages=1000):
