@@ -4,7 +4,7 @@ import pathlib
 from django.db import models
 from django.utils import timezone
 
-from . import storages as export_storages
+from . import storages as exports_storages
 
 def export_file_handler(instance, filename):
     today = timezone.now().strftime("%y-%m-%d")
@@ -28,3 +28,16 @@ class Export(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=  20, choices=ExportDataType.choices, default=ExportDataType.RATINGS)
     latest = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.latest and self.file:
+            file = self.file
+            ext = pathlib.Path(file.name).suffix
+            path = f"exports/{self.type}/latest{ext}"
+            exports_storages.save(path, file, overwrite=True)
+            qs = Export.objects.filter(type=self.type).exclude(pk=self.pk)
+            qs.update(latest=False)
+
+
+# relative path - "src\local-cdn\media\exports\anime\latest.csv"
