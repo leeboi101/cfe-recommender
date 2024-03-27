@@ -110,3 +110,5 @@ class AnimePopularView(AnimeDetailView):
 
 
 anime_popular_view = AnimePopularView.as_view()
+
+def
