@@ -1,16 +1,28 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/landing_styles.css' %}">
+{% endblock %}
+
 {% block content %}
-
-<div class="row my-2">
-  <div class="col-md-2 me-auto">
-    <hi>Welcome!</hi>
+<!-- Applying .main-content to only the section to be centered -->
+{% if not user.is_authenticated %}
+  <div class="main-content">
+    <div class="title">
+      <h1>Anime Recommendations</h1>
+    </div>
+    <div class="button">
+      <a href="{% url 'anime:anime_list_view' %}" class="btn">All Anime</a>
+      <a href="{% url 'anime:anime_popular_view' %}" class="btn">Popular Animes</a>
+      <a href="{% url 'anime:anime_infinite_view' %}" class="btn">Randomly generated Anime</a>
+    </div>
   </div>
-</div>
+{% endif %}
 
+<!-- Other content should follow the normal flow and not be affected by .main-content styles -->
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="target-list-change">
-    {% include 'anime/snippet/list.html' with object_list=object_list %}
-  </div> <!-- end row-->
-
-
+  {% include 'anime/snippet/list.html' with object_list=object_list %}
+</div>
 {% endblock %}
