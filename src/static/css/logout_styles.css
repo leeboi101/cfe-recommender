@@ -1,0 +1,41 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .main-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center; /* Aligns vertically */
+    justify-content: center; /* Aligns horizontally */
+    padding: 1rem;
+  }
+  
+  .form-signout {
+    max-width: 330px;
+    width: 100%;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.95); /* Almost opaque background */
+    border-radius: 15px; /* Rounded corners for the form */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
+    text-align: center; /* Center the text inside the form */
+  }
+  
+  /* Style adjustments for the sign out button for better appearance */
+  .form-signout button {
+    width: 100%; /* Full width button */
+    padding: 0.5rem 1rem; /* Adjust padding */
+    margin-top: 1rem; /* Margin top for spacing from the text */
+  }
+  
+  /* Responsive design adjustments */
+  @media (max-width: 576px) {
+    .form-signout {
+      padding: 1rem;
+      margin: 1rem; /* Ensure some space around the form on smaller screens */
+    }
+  }
+  
