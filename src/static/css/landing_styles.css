@@ -5,10 +5,6 @@
     font-family: 'Century Gothic', Century, sans-serif;
 }
 
-body {
-    /* Body flex styles are removed to avoid affecting global layout */
-    /* Ensure other body styles do not interfere with specific section styles */
-}
 
 /* Flex container for centered content */
 .main-content {
@@ -22,7 +18,7 @@ body {
 
 /* Title styles */
 .title h1 {
-    color: #000; /* Adjust color based on the background of your site */
+    color: #ffffff; /* Adjust color based on the background of your site */
     font-size: 65px;
     margin-bottom: 20px;
 }
@@ -36,20 +32,21 @@ body {
 }
 
 /* Button styles */
-.btn {
+.main-content .btn {
     border: 1px solid #fff;
     padding: 10px 25px;
     color: #fff;
     font-size: 18px;
     text-decoration: none;
     transition: 0.5s ease;
-    cursor: pointer; /* Makes it clear that the buttons are clickable */
+    cursor: pointer;
 }
 
-.btn:hover {
+.main-content .btn:hover {
     background-color: #fff;
     color: #000;
 }
+
 
 /* ... Other styles ... */
 
