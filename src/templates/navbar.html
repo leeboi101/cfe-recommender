@@ -1,4 +1,9 @@
 {% load account %}
+{% load static %}
+{% block extra_head %}
+  <!-- Include your navbar stylesheet -->
+  <link href="{% static 'css/navbar_styles.css' %}" rel="stylesheet">
+{% endblock %}
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
       <a class="navbar-brand" href="/">Ani-Bite Recommender</a>
