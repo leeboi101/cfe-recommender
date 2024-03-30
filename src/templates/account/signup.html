@@ -6,9 +6,8 @@
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block extra_head %}
-  <link href="{% static 'css/signup_styles.css' %}" rel="stylesheet">
   <link href="{% static 'css/main_style.css' %}" rel="stylesheet">
-
+  <link href="{% static 'css/signup_styles.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -21,7 +20,6 @@
     <main class="form-signup">
       <h1 class="h3 mb-3 fw-normal">{% trans "Sign Up" %}</h1>
       <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
-
       <form id="signup_form" method="post" action="{% url 'account_signup' %}">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -35,7 +33,6 @@
         <button class="btn btn-primary" type="submit">{% trans "Sign Up" %}</button>
       </form>
     </main>
-
     <!-- Password criteria messages -->
     <div class="password-criteria">
       <ul>
@@ -45,7 +42,6 @@
         <li>Your password can't be entirely numeric.</li>
       </ul>
     </div>
-
   </div>
 </div>
 {% endblock %}
