@@ -14,3 +14,24 @@ body, html {
     /* You can add other styles such as padding, background-color, etc. */
 }
 
+.anime-item {
+  /* other styles */
+  position: relative; /* for positioning the button absolutely within this container */
+  padding-bottom: 50px; /* give some space at the bottom for the button */
+}
+
+.add-to-watchlist-btn {
+  position: absolute;
+  bottom: 10px; /* position at the bottom of the container */
+  left: 50%;
+  transform: translateX(-50%); /* center it */
+  max-width: 200px; /* limit the button width */
+  white-space: nowrap; /* prevent text from wrapping */
+}
+
+/* Other content within .anime-item should have colors that contrast with the background for visibility */
+.anime-item h3, .anime-item p {
+  color: #fff; /* example color */
+}
+
+

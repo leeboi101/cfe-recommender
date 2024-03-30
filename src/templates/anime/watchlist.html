@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+{% block extra_head %}
+  <!-- Included navbar stylesheet -->
+  <link href="{% static 'css/main_style.css' %}" rel="stylesheet">
+{% endblock %}
+<div class="container mt-4">
+    <h2 style="color: white;">Your Watchlist</h2>
+    {% if watchlist %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for entry in watchlist %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ entry.anime.title }}</h5>
+                            <p class="card-text">{{ entry.anime.synopsis|truncatewords:20 }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'anime:anime_detail_view' entry.anime.id %}" class="btn btn-primary">View Details</a>
+                            <a href="{% url 'anime:remove_from_watchlist' entry.anime.id %}" class="btn btn-danger">Remove</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have no anime in your watchlist. Start adding some!</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -17,12 +17,12 @@
 /* Changes the link color to black on hover for better visibility */
 .navbar .navbar-brand:hover,
 .navbar .nav-link:hover {
-    color: #000 !important;
+    color: #ff0000 !important;
 }
 
 /* Applies styles to the login and signup buttons for a visible white border, and changes on hover */
 .navbar .btn-outline-primary {
-    border: 2px solid #fff !important; /* White border for visibility */
+    border: 2px solid #ffffff !important; /* White border for visibility */
     color: #fff !important;
     padding: 10px 25px;
     font-size: 18px;

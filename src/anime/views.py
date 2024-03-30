@@ -1,10 +1,14 @@
 from typing import Any
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.views import generic
-
-from .models import Anime
-
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Anime, Watchlist
+from django.http import HttpResponseRedirect, JsonResponse
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
 
 SORTING_CHOICES = {
     "popular": "popular",
@@ -50,8 +54,13 @@ class AnimeListView(generic.ListView):
             object_ids = [x.id for x in object_list]
             my_ratings = user.rating_set.anime().as_object_dict(object_ids=object_ids)
             context['my_ratings'] = my_ratings
-        return context
 
+            watchlist_animes = Watchlist.objects.filter(user=user).values_list('anime', flat=True)
+            context['watchlist_animes'] = watchlist_animes
+            for anime in object_list:
+                anime.is_in_watchlist = anime.id in watchlist_animes
+        return context
+    
 anime_list_view = AnimeListView.as_view()
 
 class AnimeDetailView(generic.DetailView):
@@ -68,6 +77,8 @@ class AnimeDetailView(generic.DetailView):
             object_ids = [object.id]
             my_ratings = user.rating_set.anime().as_object_dict(object_ids=object_ids)
             context['my_ratings'] = my_ratings
+            watchlist_animes = Watchlist.objects.filter(user=self.request.user).values_list('anime_id', flat=True)
+            context['watchlist_animes'] = watchlist_animes
         return context
 anime_detail_view = AnimeDetailView.as_view()
 
@@ -81,6 +92,13 @@ class AnimeInfiniteRatingView(AnimeDetailView):
         if request.htmx:
             return ['anime/snippet/infinite.html']
         return ['anime/infinite-view.html']
+    def get_context_data(self, **kwargs):
+        context = super(AnimeInfiniteRatingView, self).get_context_data(**kwargs)
+        # Assuming you have a method to get the user's watchlist anime IDs:
+        if self.request.user.is_authenticated:
+            watchlist_animes = Watchlist.objects.filter(user=self.request.user).values_list('anime_id', flat=True)
+            context['watchlist_animes'] = watchlist_animes
+        return context
 
 
 anime_infinite_rating_view = AnimeInfiniteRatingView.as_view()
@@ -110,3 +128,35 @@ class AnimePopularView(AnimeDetailView):
 
 
 anime_popular_view = AnimePopularView.as_view()
+
+class WatchlistView(LoginRequiredMixin, generic.ListView):
+    template_name = 'anime/watchlist.html'
+
+    def get_queryset(self):
+        return Watchlist.objects.filter(user=self.request.user).select_related('anime')
+
+    def get_context_data(self,*args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['watchlist'] = self.get_queryset()
+        return context
+watchlist_view = WatchlistView.as_view() 
+
+@login_required
+def add_to_watchlist(request, anime_id):
+    user = request.user
+    anime = get_object_or_404(Anime, id=anime_id)
+    _, created = Watchlist.objects.get_or_create(user=user, anime=anime)
+
+    # Check if it's an AJAX call
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'created': created})
+
+    # For non-AJAX requests, redirect to the previous page or a success page
+    redirect_url = request.GET.get('next', reverse('anime:anime_list_view'))
+    return HttpResponseRedirect(redirect_url)
+
+@login_required
+def remove_from_watchlist(request, anime_id):
+    user = request.user
+    Watchlist.objects.filter(user=user, anime_id=anime_id).delete()
+    return redirect(request.GET.get('next', reverse('anime:watchlist')))

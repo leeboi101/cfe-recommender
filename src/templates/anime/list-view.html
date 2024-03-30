@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+{% load static %}
+{% block extra_head %}
+  <link href="{% static 'css/main_style.css' %}" rel="stylesheet">
+  <link href="{% static 'css/list-view_styles.css' %}" rel="stylesheet">
+{% endblock %}
 <div class="row my-2">
   <div class="col-md-2 ms-auto">
     <select name='sort' class="form-control" hx-get="/anime/" hx-target="#target-list-change">

@@ -1,4 +1,5 @@
 import datetime
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q, F, Sum, Case, When
@@ -100,7 +101,17 @@ class Anime(models.Model):
     #         self.save()
     #     return rating_avg
     
+class Watchlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='watchlist')
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='watchlist_items')
+    added_on = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'anime')
+        verbose_name_plural = 'Watchlists'
+
+    def __str__(self):
+        return f"{self.user.username}'s watchlist"
 
 
 def anime_post_save(sender, instance, created, *args, **kwargs):
